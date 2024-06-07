@@ -10,16 +10,31 @@ class Polycrystall {
 public:
     Polycrystall();
 
-    //Инициализация
-
-    //Вычисления
+    /*---------Инициализация---------*/
     //Перевод тензора упругих модулей в форму 6x6
     void elast_4D_to_2D();
     //Осреднение тензора упругих свойств
     void calcAverageElast4D(std::vector<Monocrystall>& monocrystals);
+    
 
-    //Вычисление закона Гука
-    void calcHookeLaw();
+    
+    /*---------Вычисления---------*/
+    //Вычисление закона Гука в сокращенной форме
+    void calcHookeLaw2D();
+    //Вычисление закона Гука в полной форме
+    void calcHookeLaw4D();
+
+    /*---------Интегрирование---------*/
+    //Интегрирование тензора скорости напряжений
+    void integrateS_dot(double dt);
+    //Интегрирование тензора скорости деформаций
+    void integrateL(double dt);
+
+
+    /*---------Функции задания начальных и граничных условий---------*/
+    void true_uniaxial(double L11);
+
+
 
 public:
     //Тензор деформации скорости
@@ -39,4 +54,7 @@ public:
     Tensor elast4D;
     //Тензор упругих модулей 6х6
     Tensor elast2D;
+
+protected:
+    std::vector<double> solveGaussStrictOrder(const std::vector<std::vector<double>>& matrix, const std::vector<double>& results);
 };
