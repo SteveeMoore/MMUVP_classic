@@ -136,3 +136,27 @@ void Monocrystall::fillElast4D(const Params& param) {
     // Convert elast4D to elast2D
     elast_4D_to_2D();
 }
+
+Tensor Monocrystall::elast_from_KSK() {
+    Tensor elast4D_new({ 3, 3, 3, 3 });
+    for (size_t i = 0; i < 3; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            for (size_t k = 0; k < 3; k++) {
+                for (size_t s = 0; s < 3; s++) {
+                    double value = 0.0;
+                    for (size_t i1 = 0; i1 < 3; i1++) {
+                        for (size_t j1 = 0; j1 < 3; j1++) {
+                            for (size_t k1 = 0; k1 < 3; k1++) {
+                                for (size_t s1 = 0; s1 < 3; s1++) {
+                                    value += O.get({ i, i1 }) * O.get({ j, j1 }) * O.get({ k, k1 }) * O.get({ s, s1 }) * elast4D.get({ i1, j1, k1, s1 });
+                                }
+                            }
+                        }
+                    }
+                    elast4D_new.set({ i, j, k, s }, value);
+                }
+            }
+        }
+    }
+    return elast4D_new;
+}

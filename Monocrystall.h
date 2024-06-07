@@ -17,6 +17,8 @@ public:
     //Перевод в ЛСК
     Tensor from_KSK(const Tensor& T);
     std::vector<double> from_KSK(const std::vector<double>& vec);
+    //Перевод тензора упругих модулей в ЛСК
+    Tensor elast_from_KSK();
 
     void fillElast4D(const Params& param);
     

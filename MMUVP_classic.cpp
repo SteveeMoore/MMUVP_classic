@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <vector>
 #include "Tensor.h"
 #include "Params.h"
 #include "Polycrystall.h"
@@ -10,14 +11,19 @@ int main() {
     Polycrystall polycrystall;
 
     // Initialize the Monocrystall object
-    Monocrystall monocrystall;
+    std::vector<Monocrystall> monocrystalls(1000);
 
-    // Fill elast4D and convert to elast2D
-    monocrystall.fillElast4D(params);
+    //Инициализация
+    for (auto& mono: monocrystalls)
+    {
+        mono.fillElast4D(params);
+        mono.elast2D.save_to_file("output\\P.dat");
+        mono.uniform_distribution();
+        mono.O.save_to_file("output\\O.dat");
+    }
+    polycrystall.calcAverageElast4D(monocrystalls);
+    polycrystall.elast2D.save_to_file("output\\LSK_P.dat");
     
-    // Print the resulting elast2D tensor
-    std::cout << "Converted elast2D Tensor:" << std::endl;
-    monocrystall.elast2D.print();
 
     return 0;
 }

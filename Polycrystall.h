@@ -2,6 +2,9 @@
 #include <string>
 #include "Tensor.h"
 #include "Params.h"
+//#include "Monocrystall.h"
+
+class Monocrystall;
 
 class Polycrystall {
 public:
@@ -12,6 +15,8 @@ public:
     //Вычисления
     //Перевод тензора упругих модулей в форму 6x6
     void elast_4D_to_2D();
+    //Осреднение тензора упругих свойств
+    void calcAverageElast4D(std::vector<Monocrystall>& monocrystals);
 
     //Вычисление закона Гука
     void calcHookeLaw();

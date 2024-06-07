@@ -1,4 +1,5 @@
 #include "Polycrystall.h"
+#include "Monocrystall.h"
 
 Polycrystall::Polycrystall()
     : L({ 3, 3 }),
@@ -29,6 +30,43 @@ void Polycrystall::elast_4D_to_2D() {
     }
 }
 
+void Polycrystall::calcAverageElast4D(std::vector<Monocrystall>& monocrystals) {
+    Tensor averageElast4D({ 3, 3, 3, 3 });
+    size_t numCrystals = monocrystals.size();
+
+    if (numCrystals == 0) {
+        throw std::invalid_argument("The vector of monocrystals is empty.");
+    }
+
+    for (auto& mono : monocrystals) {
+        auto mono_elast = (mono.elast_from_KSK());
+        for (size_t i = 0; i < 3; i++) {
+            for (size_t j = 0; j < 3; j++) {
+                for (size_t k = 0; k < 3; k++) {
+                    for (size_t s = 0; s < 3; s++) {
+                        double currentValue = averageElast4D.get({ i, j, k, s });
+                        double monoValue = mono_elast.get({ i, j, k, s });
+                        averageElast4D.set({ i, j, k, s }, currentValue + monoValue);
+                    }
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < 3; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            for (size_t k = 0; k < 3; k++) {
+                for (size_t s = 0; s < 3; s++) {
+                    double currentValue = averageElast4D.get({ i, j, k, s });
+                    elast4D.set({ i, j, k, s }, currentValue / (double)numCrystals);
+                }
+            }
+        }
+    }
+
+    elast_4D_to_2D();
+}
+
 void Polycrystall::calcHookeLaw() {
     std::vector<double> sigma_rate_vector(6, 0.0);
     std::vector<double> strain_rate_vector = D.to_vector();
@@ -49,3 +87,4 @@ void Polycrystall::calcHookeLaw() {
     S_dot.set({ 2, 0 }, sigma_rate_vector[4]);
     S_dot.set({ 0, 2 }, sigma_rate_vector[4]);
 }
+
