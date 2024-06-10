@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="MMUVP_classic.cpp" />
     <ClCompile Include="Monocrystall.cpp" />
     <ClCompile Include="Params.cpp" />
@@ -135,6 +138,7 @@
     <ClCompile Include="Tensor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Monocrystall.h" />
     <ClInclude Include="Params.h" />
     <ClInclude Include="Polycrystall.h" />

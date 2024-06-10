@@ -14,8 +14,6 @@ public:
     /*---------Инициализация---------*/
     //Перевод тензора упругих модулей в форму 6x6
     void elast_4D_to_2D();
-    //Осреднение тензора упругих свойств
-    void calcAverageElast4D(std::vector<Monocrystall>& monocrystals);
     
 
     
@@ -29,12 +27,21 @@ public:
     //Интегрирование тензора скорости напряжений
     void integrateS_dot(double dt);
     //Интегрирование тензора скорости деформаций
-    void integrateL(double dt);
+    void integrateD(double dt);
 
+    /*---------Осреднение---------*/
+    //Осреднение тензора упругих свойств
+    void calcAverageElast4D(std::vector<Monocrystall>& monocrystals);
+    //Осреднение напряжений по кристаллитам. 
+    void calcAverageS(std::vector<Monocrystall>& monocrystals);
 
     /*---------Функции задания начальных и граничных условий---------*/
     void true_uniaxial(double L11);
 
+
+    /*---------Вывод в файл---------*/
+    void save_SE11_to_file(const std::string& filename, Tensor& tensor);
+    void save_intensity_to_file(const std::string& filename, Tensor& tensor);
 
 
 public:

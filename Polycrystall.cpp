@@ -67,6 +67,34 @@ void Polycrystall::calcAverageElast4D(std::vector<Monocrystall>& monocrystals) {
     elast_4D_to_2D();
 }
 
+void Polycrystall::calcAverageS(std::vector<Monocrystall>& monocrystals)
+{
+    Tensor averave_S({ 3,3 });
+    size_t numCrystals = monocrystals.size();
+
+    if (numCrystals == 0) {
+        throw std::invalid_argument("The vector of monocrystals is empty.");
+    }
+
+    for (auto& mono : monocrystals) {
+        auto mono_S = mono.from_KSK(mono.S);
+        for (size_t i = 0; i < 3; i++) {
+            for (size_t j = 0; j < 3; j++) {
+                double currentValue = averave_S.get({i,j});
+                double monoValue = mono_S.get({ i, j});
+                averave_S.set({ i,j }, currentValue + monoValue);
+            }
+        }
+    }
+
+    for (size_t i = 0; i < 3; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            double currentValue = averave_S.get({ i,j });
+            S_mean.set({ i, j }, currentValue / (double)numCrystals);
+        }
+    }
+}
+
 void Polycrystall::calcHookeLaw2D() {
     std::vector<double> sigma_rate_vector(6, 0.0);
     std::vector<double> strain_rate_vector = D.to_vector();
@@ -133,11 +161,11 @@ void Polycrystall::integrateS_dot(double dt) {
     }
 }
 
-void Polycrystall::integrateL(double dt)
+void Polycrystall::integrateD(double dt)
 {
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
-            E.set({ i, j }, E.get({ i, j }) + L.get({ i, j }) * dt);
+            E.set({ i, j }, E.get({ i, j }) + D.get({ i, j }) * dt);
         }
     }
 }
@@ -205,5 +233,28 @@ void Polycrystall::true_uniaxial(double L11)
     D.set({ 2, 2 }, result[7]);
     D.symmetrize();
     D.save_to_file("output\\D.dat");
+}
+
+void Polycrystall::save_SE11_to_file(const std::string& filename, Tensor& tensor)
+{
+    std::ofstream file;
+    file.open(filename, std::ios_base::app); // Open file in append mode
+    if (!file) {
+        throw std::runtime_error("Could not open file.");
+    }
+    double ung = 0.0;
+    if (E.get({ 0,0 }) > 0)
+    {
+        ung = tensor.get({ 0,0 }) / E.get({ 0,0 });
+    }
+    file << E.get({0,0}) << "\t" << tensor.get({ 0,0 })<< "\t" << ung;
+
+    file << "\n"; // Add a newline at the end of the tensor
+    file.close();
+}
+
+void Polycrystall::save_intensity_to_file(const std::string& filename, Tensor& tensor)
+{
+
 }
 
