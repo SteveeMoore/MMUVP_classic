@@ -2,6 +2,7 @@
 #include <string>
 #include "Tensor.h"
 #include "Params.h"
+#include "Solver.h"
 //#include "Monocrystall.h"
 
 class Monocrystall;
@@ -54,7 +55,4 @@ public:
     Tensor elast4D;
     //Тензор упругих модулей 6х6
     Tensor elast2D;
-
-protected:
-    std::vector<double> solveGaussStrictOrder(const std::vector<std::vector<double>>& matrix, const std::vector<double>& results);
 };

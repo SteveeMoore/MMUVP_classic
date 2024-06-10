@@ -144,59 +144,66 @@ void Polycrystall::integrateL(double dt)
 
 void Polycrystall::true_uniaxial(double L11)
 {
-    std::vector<double> sigma_test(6, 0.0);
-    std::vector<double> strain_test(6, 0.0);
+    std::vector<std::vector<size_t>> indices = {
+        {0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 2}, {0, 0, 1, 0}, {0, 0, 1, 1}, {0, 0, 1, 2}, {0, 0, 2, 0}, {0, 0, 2, 1}, {0, 0, 2, 2},
+        {0, 1, 0, 0}, {0, 1, 0, 1}, {0, 1, 0, 2}, {0, 1, 1, 0}, {0, 1, 1, 1}, {0, 1, 1, 2}, {0, 1, 2, 0}, {0, 1, 2, 1}, {0, 1, 2, 2},
+        {0, 2, 0, 0}, {0, 2, 0, 1}, {0, 2, 0, 2}, {0, 2, 1, 0}, {0, 2, 1, 1}, {0, 2, 1, 2}, {0, 2, 2, 0}, {0, 2, 2, 1}, {0, 2, 2, 2},
+        {1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 0, 2}, {1, 0, 1, 0}, {1, 0, 1, 1}, {1, 0, 1, 2}, {1, 0, 2, 0}, {1, 0, 2, 1}, {1, 0, 2, 2},
+        {1, 1, 0, 0}, {1, 1, 0, 1}, {1, 1, 0, 2}, {1, 1, 1, 0}, {1, 1, 1, 1}, {1, 1, 1, 2}, {1, 1, 2, 0}, {1, 1, 2, 1}, {1, 1, 2, 2},
+        {1, 2, 0, 0}, {1, 2, 0, 1}, {1, 2, 0, 2}, {1, 2, 1, 0}, {1, 2, 1, 1}, {1, 2, 1, 2}, {1, 2, 2, 0}, {1, 2, 2, 1}, {1, 2, 2, 2},
+        {2, 0, 0, 0}, {2, 0, 0, 1}, {2, 0, 0, 2}, {2, 0, 1, 0}, {2, 0, 1, 1}, {2, 0, 1, 2}, {2, 0, 2, 0}, {2, 0, 2, 1}, {2, 0, 2, 2},
+        {2, 1, 0, 0}, {2, 1, 0, 1}, {2, 1, 0, 2}, {2, 1, 1, 0}, {2, 1, 1, 1}, {2, 1, 1, 2}, {2, 1, 2, 0}, {2, 1, 2, 1}, {2, 1, 2, 2},
+        {2, 2, 0, 0}, {2, 2, 0, 1}, {2, 2, 0, 2}, {2, 2, 1, 0}, {2, 2, 1, 1}, {2, 2, 1, 2}, {2, 2, 2, 0}, {2, 2, 2, 1}, {2, 2, 2, 2}
+    };
 
-    strain_test[0] = L11;
+    std::vector<std::vector<double>> L_test(3, std::vector<double>(9, 0.0));
+    L_test[0][0] = L11;
 
-    for (size_t i = 0; i < 6; i++) {
-        for (size_t j = 0; j < 6; j++) {
-            sigma_test[i] -= elast2D.get({ i, j }) * strain_test[j];
-        }
-    }
 
-    std::vector<double> sigma_cut(5, 0.0);
-    std::vector<double> strain_cut(5, 0.0);
-    std::vector<std::vector<double>> elast_cut(5, std::vector<double>(5, 0.0));
+    std::vector<std::vector<double>> sigma_test(3, std::vector<double>(3, 0.0));
 
-    for (size_t i = 1; i < 6; i++) {
-        for (size_t j = 1; j < 6; j++) {
-            elast_cut[i - 1][j - 1] = elast2D.get({ i, j });
-        }
-    }
-
-    strain_cut = solveGaussStrictOrder(elast_cut, sigma_cut);
-}
-
-std::vector<double> Polycrystall::solveGaussStrictOrder(const std::vector<std::vector<double>>& matrix, const std::vector<double>& results)
-{
-    int n = results.size();
-    std::vector<std::vector<double>> mat = matrix;
-    std::vector<double> res = results;
-    std::vector<double> x(n, 0.0);
-
-    // Прямой ход метода Гаусса
-    for (int i = 0; i < n; i++) {
-        if (mat[i][i] == 0.0) {
-            throw std::runtime_error("Нулевой элемент на диагонали, нельзя решить методом Гаусса без перестановок.");
-        }
-
-        for (int k = i + 1; k < n; k++) {
-            double c = -mat[k][i] / mat[i][i];
-            for (int j = i; j < n; j++) {
-                mat[k][j] += c * mat[i][j];
+    for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+            for (size_t k = 0; k < 3; ++k) {
+                for (size_t l = 0; l < 3; ++l) {
+                    sigma_test[i][j] -= elast4D.get({ i,j,k,l }) * L_test[k][l];
+                }
             }
-            res[k] += c * res[i];
         }
     }
 
-    // Обратный ход метода Гаусса
-    for (int i = n - 1; i >= 0; i--) {
-        x[i] = res[i] / mat[i][i];
-        for (int k = i - 1; k >= 0; k--) {
-            res[k] -= mat[k][i] * x[i];
+    std::vector<double> right_side(8, 0.0);
+    right_side[0] = sigma_test[0][1];
+    right_side[1] = sigma_test[0][2];
+    right_side[2] = sigma_test[1][0];
+    right_side[3] = sigma_test[1][1];
+    right_side[4] = sigma_test[1][2];
+    right_side[5] = sigma_test[2][0];
+    right_side[6] = sigma_test[2][1];
+    right_side[7] = sigma_test[2][2];
+
+    std::vector<std::vector<double>> left_side(8, std::vector<double>(8, 0.0));
+
+    for (size_t i = 1; i < 9; ++i) {
+        for (size_t j = 1; j < 9; ++j) {
+            size_t idx = i * 9 + j;
+            left_side[i-1][j-1] = elast4D.get({ indices[idx][0], indices[idx][1], indices[idx][2], indices[idx][3] });
         }
     }
-    return x;
+
+    std::vector<double> result(8, 0.0);
+    result = Solver::solveGaussSimple(left_side, right_side);
+
+    D.set({ 0, 0 }, L11);
+    D.set({ 0, 1 }, result[0]);
+    D.set({ 0, 2 }, result[1]);
+    D.set({ 1, 0 }, result[2]);
+    D.set({ 1, 1 }, result[3]);
+    D.set({ 1, 2 }, result[4]);
+    D.set({ 2, 0 }, result[5]);
+    D.set({ 2, 1 }, result[6]);
+    D.set({ 2, 2 }, result[7]);
+    D.symmetrize();
+    D.save_to_file("output\\D.dat");
 }
 

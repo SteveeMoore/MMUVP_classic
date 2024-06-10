@@ -23,7 +23,7 @@ int main() {
     }
     polycrystall.calcAverageElast4D(monocrystalls);
     polycrystall.elast2D.save_to_file("output\\LSK_P.dat");
-    
+    polycrystall.true_uniaxial(params.get_param("L11"));
 
     return 0;
 }

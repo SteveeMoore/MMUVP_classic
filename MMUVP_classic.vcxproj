@@ -131,12 +131,14 @@
     <ClCompile Include="Monocrystall.cpp" />
     <ClCompile Include="Params.cpp" />
     <ClCompile Include="Polycrystall.cpp" />
+    <ClCompile Include="Solver.cpp" />
     <ClCompile Include="Tensor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Monocrystall.h" />
     <ClInclude Include="Params.h" />
     <ClInclude Include="Polycrystall.h" />
+    <ClInclude Include="Solver.h" />
     <ClInclude Include="Tensor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
